@@ -6,6 +6,7 @@ import {
   countUnlocked,
   getHighestUnlockedId,
   getNextBuildingId,
+  performAction,
   recalculateUnlocks,
   scoreAndSortActions,
   simulateGreedyPlan,
@@ -42,7 +43,41 @@ export function useGameState() {
   // 保证解锁状态正确
   recalculateUnlocks(initial);
   const gameState = reactive<GameState>(initial);
-  const maxSteps = ref<number>(50);
+  const maxSteps = ref<number>(20);
+
+  // ===== 撤销栈 =====
+  const HISTORY_LIMIT = 30;
+  const history = ref<{ snapshot: GameState; label: string }[]>([]);
+  const canUndo = computed(() => history.value.length > 0);
+
+  function snapshotState(): GameState {
+    return {
+      ...gameState,
+      buildings: gameState.buildings.map(b => ({ ...b }))
+    } as GameState;
+  }
+
+  function pushHistory(label: string) {
+    history.value.push({ snapshot: snapshotState(), label });
+    if (history.value.length > HISTORY_LIMIT) history.value.shift();
+  }
+
+  function restoreSnapshot(snap: GameState) {
+    Object.assign(gameState, snap);
+    gameState.buildings = snap.buildings.map(b => ({ ...b }));
+    recalculateUnlocks(gameState);
+  }
+
+  function undo(): { ok: boolean; message: string; label?: string } {
+    const item = history.value.pop();
+    if (!item) return { ok: false, message: '没有可撤销的操作' };
+    restoreSnapshot(item.snapshot);
+    return { ok: true, message: `已撤销：${item.label}`, label: item.label };
+  }
+
+  function clearHistory() {
+    history.value = [];
+  }
 
   // ===== 派生计算 =====
   const totalProduction = computed(() => calcTotalProduction(gameState));
@@ -71,12 +106,16 @@ export function useGameState() {
 
   // ===== 修改方法 =====
 
-  function updateBuilding(id: number, field: keyof Building, value: number | boolean) {
+  function updateBuilding(id: number, field: keyof Building, value: number | boolean | string) {
     const b = gameState.buildings[id];
     if (!b) return;
     if (field === 'unlocked') {
       // 解锁手动开关：仅在前置满足时允许打开
       b.unlocked = !!value;
+    } else if (field === 'name') {
+      // 名称：去除首尾空白，空字符串忽略避免误清空
+      const s = String(value ?? '').trim();
+      if (s.length > 0) b.name = s.slice(0, 20);
     } else if (typeof value === 'number') {
       // 边界
       let v = value;
@@ -133,6 +172,37 @@ export function useGameState() {
     maxSteps.value = Math.max(1, Math.round(steps));
   }
 
+  /** 把当前贪心推荐的最佳动作应用到游戏状态：自动等待 + 扣费 + 修改建筑 */
+  function applyBestAction(): { ok: boolean; message: string; waitSeconds?: number; label?: string } {
+    const action = bestAction.value;
+    if (!action) {
+      return { ok: false, message: '当前没有可执行的推荐动作' };
+    }
+    if (!isFinite(action.scoreSeconds) || !isFinite(action.waitSeconds)) {
+      return { ok: false, message: '推荐动作不可执行（等待时间无穷）' };
+    }
+    // 入栈历史以便撤销
+    pushHistory(action.label);
+    const result = performAction(gameState as GameState, action);
+    const next = result.state;
+    // 回写到响应式 state
+    gameState.ore = next.ore;
+    gameState.servantSkillLevel = next.servantSkillLevel;
+    gameState.nextServantSkillCost = next.nextServantSkillCost;
+    gameState.productionMultiplier = next.productionMultiplier;
+    gameState.targetBuildingId = next.targetBuildingId;
+    for (let i = 0; i < next.buildings.length; i++) {
+      Object.assign(gameState.buildings[i], next.buildings[i]);
+    }
+    recalculateUnlocks(gameState);
+    return {
+      ok: true,
+      message: `已执行：${action.label}`,
+      waitSeconds: result.step.waitSeconds,
+      label: action.label
+    };
+  }
+
   function exportState(): string {
     return JSON.stringify(
       {
@@ -159,6 +229,7 @@ export function useGameState() {
       if (typeof parsed.settings?.maxSteps === 'number') {
         maxSteps.value = parsed.settings.maxSteps;
       }
+      clearHistory();
       return { ok: true, message: '导入成功' };
     } catch (e: any) {
       return { ok: false, message: 'JSON 解析失败：' + (e?.message ?? e) };
@@ -170,6 +241,7 @@ export function useGameState() {
     Object.assign(gameState, def);
     gameState.buildings = def.buildings.map(b => ({ ...b }));
     recalculateUnlocks(gameState);
+    clearHistory();
   }
 
   // 持久化
@@ -191,9 +263,12 @@ export function useGameState() {
     greedyPlan,
     hardUnlock,
     // 方法
+    canUndo,
     updateBuilding,
     updateGlobal,
     setMaxSteps,
+    applyBestAction,
+    undo,
     exportState,
     importState,
     resetToDefault

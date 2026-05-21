@@ -23,9 +23,9 @@ describe('greedy - 默认样例', () => {
     expect(best.deltaProduction).toBeCloseTo(2074.95, 2);
   });
 
-  it('推荐等待 ≈ 62028.53 秒（17.2 小时）', () => {
+  it('推荐等待 ≈ 57900.63 秒（16.1 小时）', () => {
     const best = actions[0];
-    expect(best.waitSeconds).toBeCloseTo(62028.53, 0);
+    expect(best.waitSeconds).toBeCloseTo(57900.63, 0);
   });
 
   it('推荐回本 ≈ 1,249,186.73 秒（14.46 天）', () => {
@@ -33,29 +33,28 @@ describe('greedy - 默认样例', () => {
     expect(best.paybackSeconds).toBeCloseTo(1249186.73, 0);
   });
 
-  it('折扣后得分 ≈ 655,607.63 秒（前沿购买 0.5 折扣）', () => {
+  it('折扣后得分 ≈ 653,543.68 秒（前沿购买 0.5 折扣）', () => {
     const best = actions[0];
-    expect(best.scoreSeconds).toBeCloseTo(655607.63, 0);
+    expect(best.scoreSeconds).toBeCloseTo(653543.68, 0);
   });
 
-  it('Top 8 候选标签符合 spec', () => {
+  it('Top 8 候选标签符合预期', () => {
     const top = actions.slice(0, 8).map(a => a.label);
     expect(top[0]).toBe('购买 锻兵房');
     // 接下来几项可能因浮点比较微调，我们仅检查包含
     const all = top.join(' | ');
-    expect(all).toContain('招募 1 个杂役到 补给营地');
-    expect(all).toContain('购买 探测法阵');
+    expect(all).toContain('招募 1 个杂役到 灵符堂');
     expect(all).toContain('提升杂役技艺');
   });
 });
 
 describe('greedy - 硬冲解锁', () => {
-  it('硬冲解锁藏经阁 ≈ 455,845.12 秒', () => {
+  it('硬冲解锁藏经阁 ≈ 308,488 秒（锻兵房已有 1 栋）', () => {
     const state = recalculateUnlocks(createDefaultState());
     const r = simulateHardUnlock(state, 7);
     expect(r.reachable).toBe(true);
-    expect(r.totalSeconds).toBeGreaterThan(455000);
-    expect(r.totalSeconds).toBeLessThan(457000);
+    expect(r.totalSeconds).toBeGreaterThan(307000);
+    expect(r.totalSeconds).toBeLessThan(310000);
   });
 
   it('藏经阁首购时间应为 null（数据缺失 baseProduction=0, nextBuyCost=0）', () => {

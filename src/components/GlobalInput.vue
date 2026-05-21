@@ -32,6 +32,7 @@ function onSelect(field: keyof GameState, ev: Event) {
         <span class="field-label">当前灵矿石</span>
         <NumberInput
           :model-value="props.gameState.ore"
+          storage-key="global.ore"
           @update:model-value="(v: number) => emit('update', 'ore', v)"
         />
       </label>
@@ -40,8 +41,10 @@ function onSelect(field: keyof GameState, ev: Event) {
         <span class="field-label">全局产量倍率</span>
         <input
           type="number"
+          inputmode="decimal"
           step="0.01"
           :value="props.gameState.productionMultiplier"
+          @focus="($event.target as HTMLInputElement).select()"
           @input="onPlain('productionMultiplier', $event)"
         />
       </label>
@@ -62,9 +65,12 @@ function onSelect(field: keyof GameState, ev: Event) {
         <span class="field-label">杂役技艺等级</span>
         <input
           type="number"
+          inputmode="numeric"
+          pattern="[0-9]*"
           min="1"
           step="1"
           :value="props.gameState.servantSkillLevel"
+          @focus="($event.target as HTMLInputElement).select()"
           @input="onPlain('servantSkillLevel', $event)"
         />
       </label>
@@ -73,6 +79,7 @@ function onSelect(field: keyof GameState, ev: Event) {
         <span class="field-label">下次技艺升级花费</span>
         <NumberInput
           :model-value="props.gameState.nextServantSkillCost"
+          storage-key="global.nextServantSkillCost"
           @update:model-value="(v: number) => emit('update', 'nextServantSkillCost', v)"
         />
       </label>

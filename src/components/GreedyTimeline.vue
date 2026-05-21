@@ -10,7 +10,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'changeMaxSteps', steps: number): void;
+  (e: 'apply'): void;
 }>();
+
+function canApplyFirst(): boolean {
+  const first = props.plan.timeline[0]?.action;
+  return !!first && isFinite(first.scoreSeconds) && isFinite(first.waitSeconds);
+}
 
 const presets = [
   { label: '20 步', value: 20 },
@@ -90,9 +96,39 @@ function typeCls(t: string) {
     </div>
 
     <ol v-else class="timeline">
-      <li v-for="(step, idx) in props.plan.timeline" :key="idx" class="step">
+      <!-- ===== 第一步：放大版 ===== -->
+      <li v-if="props.plan.timeline[0]" class="step step-first">
+        <div class="hero-head">
+          <span class="rec-badge">推荐</span>
+          <span class="tag" :class="typeCls(props.plan.timeline[0].action.type)">{{ typeText(props.plan.timeline[0].action.type) }}</span>
+          <span class="hero-label">{{ props.plan.timeline[0].action.label }}</span>
+          <button
+            type="button"
+            class="apply-btn"
+            :disabled="!canApplyFirst()"
+            :title="canApplyFirst() ? '自动等待并执行此步，无需手动改输入框' : '动作不可执行'"
+            @click="emit('apply')"
+          >
+            执行此步
+          </button>
+        </div>
+        <div class="step-meta hero-meta">
+          <span>等待 <b class="mono">{{ formatTime(props.plan.timeline[0].waitSeconds) }}</b></span>
+          <span>累计 <b class="mono">{{ formatTime(props.plan.timeline[0].totalSeconds) }}</b></span>
+          <span>花费 <b class="mono">{{ formatNumber(props.plan.timeline[0].action.cost) }}</b></span>
+          <span class="text-green">+{{ formatNumber(props.plan.timeline[0].action.deltaProduction) }}/s</span>
+          <span>秒产 <b class="mono">{{ formatNumber(props.plan.timeline[0].productionBefore) }}</b> → <b class="mono text-accent">{{ formatNumber(props.plan.timeline[0].productionAfter) }}</b></span>
+        </div>
+      </li>
+
+      <!-- ===== 后续步骤：紧凑行 ===== -->
+      <li
+        v-for="(step, idx) in props.plan.timeline.slice(1)"
+        :key="idx + 1"
+        class="step"
+      >
         <div class="step-index">
-          <span class="step-num">{{ idx + 1 }}</span>
+          <span class="step-num">{{ idx + 2 }}</span>
         </div>
         <div class="step-body">
           <div class="step-head">
@@ -171,6 +207,63 @@ function typeCls(t: string) {
 }
 .step:hover {
   border-color: var(--border-strong);
+}
+/* ===== 第一步：放大、明显，但不花哨 ===== */
+.step-first {
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-elev-2);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+}
+.step-first:hover {
+  border-color: var(--accent);
+  background: var(--bg-elev-2);
+}
+.hero-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hero-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.rec-badge {
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.apply-btn {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .12s ease, opacity .12s ease;
+}
+.apply-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.apply-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hero-meta {
+  font-size: 13px;
+}
+.hero-meta b {
+  font-size: 14px;
 }
 .step-index {
   flex-shrink: 0;

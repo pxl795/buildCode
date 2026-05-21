@@ -21,12 +21,12 @@ describe('formulas - 默认样例数据', () => {
     expect(calcUnitProduction(b, state)).toBeCloseTo(17.172, 6);
   });
 
-  it('当前秒产 ≈ 41,787.22/s', () => {
-    expect(calcTotalProduction(state)).toBeCloseTo(41787.22, 1);
+  it('当前秒产 ≈ 44,766.35/s', () => {
+    expect(calcTotalProduction(state)).toBeCloseTo(44766.35, 1);
   });
 
-  it('日产 ≈ 3,610,415,935.72', () => {
-    expect(calcDailyProduction(state)).toBeCloseTo(3610415935.72, 0);
+  it('日产 ≈ 3,867,812,726.40', () => {
+    expect(calcDailyProduction(state)).toBeCloseTo(3867812726.40, 0);
   });
 
   it('锻兵房单产 = 1450*1.35*1.06 ≈ 2074.95', () => {

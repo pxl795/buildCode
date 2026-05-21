@@ -3,13 +3,13 @@ import type { Building, GameState } from '../core/types';
 
 /** 来自 spec 第 22 节的样例存档，作为默认输入数据 */
 const SAMPLE_BUILDINGS: Building[] = [
-  { id: 0, name: '补给营地', count: 50, level: 6, baseProduction: 12, nextBuyCost: 37835121.154785156, servantCapacityOverride: 0, servantCount: 91, servantBaseProduction: 0.3391304347826087, nextServantCost: 1307839.5827941403, unlocked: true },
-  { id: 1, name: '探测法阵', count: 40, level: 5, baseProduction: 30, nextBuyCost: 52812600, servantCapacityOverride: 0, servantCount: 80, servantBaseProduction: 0.6695652173913044, nextServantCost: 1049691.4309043947, unlocked: true },
-  { id: 2, name: '采矿据点', count: 33, level: 4, baseProduction: 72, nextBuyCost: 144834765.625, servantCapacityOverride: 0, servantCount: 78, servantBaseProduction: 1.3634661835748791, nextServantCost: 7248355.78748648, unlocked: true },
-  { id: 3, name: '修士坊市', count: 25, level: 3, baseProduction: 165, nextBuyCost: 312500000, servantCapacityOverride: 0, servantCount: 61, servantBaseProduction: 2.9, nextServantCost: 12379042.896980574, unlocked: true },
-  { id: 4, name: '炼丹楼', count: 20, level: 3, baseProduction: 480, nextBuyCost: 1329183578.491211, servantCapacityOverride: 0, servantCount: 42, servantBaseProduction: 5.460869565217391, nextServantCost: 25285007.000000007, unlocked: true },
-  { id: 5, name: '灵符堂', count: 10, level: 2, baseProduction: 960, nextBuyCost: 1861572265.625, servantCapacityOverride: 60, servantCount: 19, servantBaseProduction: 8.104347826086956, nextServantCost: 36719628.000000015, unlocked: true },
-  { id: 6, name: '锻兵房', count: 0, level: 1, baseProduction: 1450, nextBuyCost: 2592000000, servantCapacityOverride: 0, servantCount: 0, servantBaseProduction: 18.27771944846274, nextServantCost: 25750800, unlocked: true },
+  { id: 0, name: '补给营地', count: 50, level: 6, baseProduction: 12, nextBuyCost: 37835121.154785156, servantCapacityOverride: 0, servantCount: 91, servantBaseProduction: 0.36666666666666664, nextServantCost: 1307800, unlocked: true },
+  { id: 1, name: '探测法阵', count: 40, level: 5, baseProduction: 30, nextBuyCost: 52812600, servantCapacityOverride: 0, servantCount: 80, servantBaseProduction: 0.6666666666666666, nextServantCost: 1049700, unlocked: true },
+  { id: 2, name: '采矿据点', count: 32, level: 4, baseProduction: 72, nextBuyCost: 144834765.625, servantCapacityOverride: 0, servantCount: 78, servantBaseProduction: 1.3666666666666667, nextServantCost: 7248400, unlocked: true },
+  { id: 3, name: '修士坊市', count: 25, level: 3, baseProduction: 165, nextBuyCost: 312500000, servantCapacityOverride: 0, servantCount: 61, servantBaseProduction: 2.9166666666666665, nextServantCost: 12379000, unlocked: true },
+  { id: 4, name: '炼丹楼', count: 20, level: 3, baseProduction: 480, nextBuyCost: 1329183578.491211, servantCapacityOverride: 0, servantCount: 42, servantBaseProduction: 8.166666666666666, nextServantCost: 25285000, unlocked: true },
+  { id: 5, name: '灵符堂', count: 10, level: 2, baseProduction: 960, nextBuyCost: 1861572265.625, servantCapacityOverride: 0, servantCount: 20, servantBaseProduction: 16.166666666666668, nextServantCost: 38017300, unlocked: true },
+  { id: 6, name: '锻兵房', count: 1, level: 1, baseProduction: 1450, nextBuyCost: 2592000000, servantCapacityOverride: 0, servantCount: 1, servantBaseProduction: 24.333333333333332, nextServantCost: 88704100, unlocked: true },
   { id: 7, name: '藏经阁', count: 0, level: 1, baseProduction: 0, nextBuyCost: 0, servantCapacityOverride: 0, servantCount: 0, servantBaseProduction: 35.18192778795122, nextServantCost: 60000000, unlocked: false },
   { id: 8, name: '真仙池', count: 0, level: 1, baseProduction: 0, nextBuyCost: 0, servantCapacityOverride: 0, servantCount: 0, servantBaseProduction: 67.72004824599254, nextServantCost: 3737127674.864238, unlocked: false },
   { id: 9, name: '玄仙府', count: 0, level: 1, baseProduction: 0, nextBuyCost: 0, servantCapacityOverride: 0, servantCount: 0, servantBaseProduction: 130.3511553454479, nextServantCost: 33412764416.91088, unlocked: false },

@@ -108,6 +108,17 @@ input[type="number"]:focus, input[type="text"]:focus {
 }
 input[disabled] { opacity: 0.5; cursor: not-allowed; }
 
+/* 隐藏原生 number 微调按钮：在窄列里会挤占可点击区域，且各浏览器表现不一致 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 select {
   font-family: inherit;
   background: var(--bg-elev);
@@ -310,6 +321,25 @@ table.data .num-input .unit-select {
   .app-subtitle { display: none; }
   table.data { font-size: 12px; }
   table.data thead th, table.data tbody td { padding: 6px 8px; }
+
+  /* 输入框字号 ≥ 16px，避免 iOS Safari 聚焦时自动放大整页 */
+  input[type="number"], input[type="text"], select {
+    font-size: 16px;
+    padding: 7px 8px;
+  }
+  /* 表格里仍然紧凑，但保持 16px 字号防止 iOS 缩放 */
+  table.data input[type="number"], table.data input[type="text"] {
+    font-size: 16px;
+    padding: 5px 6px;
+  }
+  table.data .num-input input[type='number'] {
+    font-size: 16px;
+    padding: 5px 6px;
+  }
+  table.data .num-input .unit-select {
+    font-size: 13px;
+    min-width: 38px;
+  }
 }
 
 /* 滚动条 */

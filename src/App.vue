@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import GlobalInput from './components/GlobalInput.vue';
 import Overview from './components/Overview.vue';
 import BuildingTable from './components/BuildingTable.vue';
 import ServantTable from './components/ServantTable.vue';
-import Recommendation from './components/Recommendation.vue';
 import GreedyTimeline from './components/GreedyTimeline.vue';
 import { useGameState } from './composables/useGameState';
 
@@ -58,6 +57,40 @@ function handleReset() {
   }
 }
 
+function handleApplyBest() {
+  const res = game.applyBestAction();
+  if (!res.ok) {
+    flash(res.message);
+    return;
+  }
+  const wait = res.waitSeconds ?? 0;
+  const waitTxt = wait < 1 ? '<1 秒' : wait < 60
+    ? `${wait.toFixed(1)} 秒`
+    : wait < 3600
+      ? `${(wait / 60).toFixed(1)} 分`
+      : `${(wait / 3600).toFixed(2)} 小时`;
+  flash(`${res.message}（等待 ${waitTxt}）`);
+}
+
+function handleUndo() {
+  const res = game.undo();
+  flash(res.message);
+}
+
+function onKeydown(ev: KeyboardEvent) {
+  // Ctrl+Z / Cmd+Z 撤销（避免与文本输入框的撤销冲突：在 input/textarea 里不拦截）
+  if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && (ev.key === 'z' || ev.key === 'Z')) {
+    const tgt = ev.target as HTMLElement | null;
+    const tag = tgt?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tgt?.isContentEditable) return;
+    ev.preventDefault();
+    handleUndo();
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onUnmounted(() => window.removeEventListener('keydown', onKeydown));
+
 function flash(msg: string) {
   message.value = msg;
   setTimeout(() => {
@@ -74,6 +107,14 @@ function flash(msg: string) {
         <span class="app-subtitle">贪心算法 · 下一步推荐 · 路线模拟</span>
       </div>
       <div class="app-actions">
+        <button
+          class="ghost"
+          :disabled="!game.canUndo.value"
+          :title="game.canUndo.value ? '撤销上一步执行（Ctrl+Z）' : '没有可撤销的操作'"
+          @click="handleUndo"
+        >
+          ↶ 撤销上一步执行
+        </button>
         <button class="ghost" @click="handleReset">重置默认</button>
       </div>
     </header>
@@ -97,6 +138,13 @@ function flash(msg: string) {
       :hard-unlock="game.hardUnlock.value"
     />
 
+    <GreedyTimeline
+      :plan="game.greedyPlan.value"
+      :max-steps="game.maxSteps.value"
+      @change-max-steps="game.setMaxSteps"
+      @apply="handleApplyBest"
+    />
+
     <div class="two-col">
       <BuildingTable
         :game-state="game.gameState"
@@ -107,18 +155,6 @@ function flash(msg: string) {
         @update="(id, f, v) => game.updateBuilding(id, f as any, v as any)"
       />
     </div>
-
-    <Recommendation
-      :best-action="game.bestAction.value"
-      :sorted-actions="game.sortedActions.value"
-      :current-production="game.totalProduction.value"
-    />
-
-    <GreedyTimeline
-      :plan="game.greedyPlan.value"
-      :max-steps="game.maxSteps.value"
-      @change-max-steps="game.setMaxSteps"
-    />
 
     <footer class="app-footer">
       <span>贪心算法 · 前沿解锁折扣 0.5 · 不代表全局最优</span>

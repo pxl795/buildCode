@@ -18,16 +18,10 @@ const targetBuilding = computed<Building | null>(() => {
   return props.gameState.buildings[id] ?? null;
 });
 
-const hardUnlockText = computed(() => {
-  const r = props.hardUnlock;
-  if (!r.reachable) return r.reason ?? '无法计算';
-  return formatTime(r.totalSeconds);
-});
-
 const firstBuyText = computed(() => {
   const r = props.hardUnlock;
-  if (!r.reachable) return '—';
-  if (r.firstBuyTotalSeconds == null) return '数据缺失（baseProduction/nextBuyCost = 0）';
+  if (!r.reachable) return r.reason ?? '—';
+  if (r.firstBuyTotalSeconds == null) return '请填写目标下次购买价';
   return formatTime(r.firstBuyTotalSeconds);
 });
 </script>
@@ -70,17 +64,9 @@ const firstBuyText = computed(() => {
       </div>
 
       <div class="metric">
-        <div class="metric-label">硬冲解锁目标</div>
-        <div class="metric-value mono">{{ hardUnlockText }}</div>
-        <div class="metric-sub">
-          目标：{{ targetBuilding?.name ?? '—' }}
-        </div>
-      </div>
-
-      <div class="metric">
         <div class="metric-label">目标首购总时间</div>
         <div class="metric-value mono">{{ firstBuyText }}</div>
-        <div class="metric-sub">硬冲 + 首购等待</div>
+        <div class="metric-sub">目标：{{ targetBuilding?.name ?? '—' }}</div>
       </div>
     </div>
   </section>
