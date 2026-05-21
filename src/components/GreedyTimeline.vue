@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { GreedyPlanResult } from '../core/types';
-import type { BeamPlanResult } from '../core/beam';
 import { formatNumber, formatTime } from '../utils/format';
-import AlgorithmComparison from './AlgorithmComparison.vue';
 
 const props = defineProps<{
   plan: GreedyPlanResult;
-  greedy3Day: GreedyPlanResult;
-  beam3Day: BeamPlanResult;
   maxSteps: number;
 }>();
 
@@ -149,11 +145,6 @@ function typeCls(t: string) {
         </div>
       </li>
     </ol>
-
-    <AlgorithmComparison
-      :greedy-3-day="props.greedy3Day"
-      :beam-3-day="props.beam3Day"
-    />
   </section>
 </template>
 

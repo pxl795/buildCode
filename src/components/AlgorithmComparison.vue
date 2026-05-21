@@ -5,8 +5,8 @@ import type { BeamPlanResult } from '../core/beam';
 import { formatNumber, formatTime } from '../utils/format';
 
 const props = defineProps<{
-  greedy3Day: GreedyPlanResult;
-  beam3Day: BeamPlanResult;
+  greedyPlan: GreedyPlanResult;
+  beamPlan: BeamPlanResult;
 }>();
 
 const W = 700;
@@ -53,8 +53,8 @@ function sampleCumulative(
 }
 
 const chartData = computed(() => {
-  const greedy = props.greedy3Day;
-  const beam = props.beam3Day;
+  const greedy = props.greedyPlan;
+  const beam = props.beamPlan;
   const horizon = Math.max(greedy.elapsedSeconds, beam.elapsedSeconds, 86400);
 
   const greedySamples = sampleCumulative(greedy.timeline, horizon, 120);
@@ -119,15 +119,15 @@ const chartData = computed(() => {
 });
 
 const greedyDelta = computed(() => {
-  const init = props.greedy3Day.initialProduction;
+  const init = props.greedyPlan.initialProduction;
   if (init <= 0) return 0;
-  return ((props.greedy3Day.finalProduction - init) / init) * 100;
+  return ((props.greedyPlan.finalProduction - init) / init) * 100;
 });
 
 const beamDelta = computed(() => {
-  const init = props.beam3Day.initialProduction;
+  const init = props.beamPlan.initialProduction;
   if (init <= 0) return 0;
-  return ((props.beam3Day.finalProduction - init) / init) * 100;
+  return ((props.beamPlan.finalProduction - init) / init) * 100;
 });
 
 const cumulativeAdvantage = computed(() => {
@@ -141,7 +141,7 @@ const cumulativeAdvantage = computed(() => {
     <h3 class="card-title">3 天累计产量对比</h3>
     <p class="card-desc">贪心 (Greedy) vs 集束搜索 (Beam Search, beamWidth=3) — 相同时间内谁的累计产量更高</p>
 
-    <div v-if="props.greedy3Day.timeline.length === 0 && props.beam3Day.timeline.length === 0" class="empty">
+    <div v-if="props.greedyPlan.timeline.length === 0 && props.beamPlan.timeline.length === 0" class="empty">
       无可执行步骤，无法对比。
     </div>
 
@@ -200,9 +200,9 @@ const cumulativeAdvantage = computed(() => {
         <!-- 图例 -->
         <g :transform="`translate(${PAD.left + plotW - 200}, ${PAD.top + 6})`">
           <line x1="0" y1="6" x2="20" y2="6" stroke="var(--accent)" stroke-width="2.5" />
-          <text x="26" y="10" class="legend-text">贪心 {{ props.greedy3Day.timeline.length }}步</text>
+          <text x="26" y="10" class="legend-text">贪心 {{ props.greedyPlan.timeline.length }}步</text>
           <line x1="0" y1="24" x2="20" y2="24" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="6 3" />
-          <text x="26" y="28" class="legend-text">Beam {{ props.beam3Day.timeline.length }}步</text>
+          <text x="26" y="28" class="legend-text">Beam {{ props.beamPlan.timeline.length }}步</text>
         </g>
       </svg>
 
@@ -220,8 +220,8 @@ const cumulativeAdvantage = computed(() => {
         </div>
         <div class="compare-row">
           <span class="compare-label">最终秒产</span>
-          <span class="mono">{{ formatNumber(props.greedy3Day.finalProduction) }}/s</span>
-          <span class="mono">{{ formatNumber(props.beam3Day.finalProduction) }}/s</span>
+          <span class="mono">{{ formatNumber(props.greedyPlan.finalProduction) }}/s</span>
+          <span class="mono">{{ formatNumber(props.beamPlan.finalProduction) }}/s</span>
         </div>
         <div class="compare-row">
           <span class="compare-label">秒产增长</span>
@@ -230,8 +230,8 @@ const cumulativeAdvantage = computed(() => {
         </div>
         <div class="compare-row">
           <span class="compare-label">步数</span>
-          <span class="mono">{{ props.greedy3Day.timeline.length }}</span>
-          <span class="mono">{{ props.beam3Day.timeline.length }}</span>
+          <span class="mono">{{ props.greedyPlan.timeline.length }}</span>
+          <span class="mono">{{ props.beamPlan.timeline.length }}</span>
         </div>
       </div>
 
