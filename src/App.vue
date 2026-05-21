@@ -10,46 +10,6 @@ import { useGameState } from './composables/useGameState';
 const game = useGameState();
 const message = ref<string>('');
 
-function handleExport() {
-  const json = game.exportState();
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(json).then(
-      () => flash('已复制 JSON 到剪贴板'),
-      () => downloadJson(json)
-    );
-  } else {
-    downloadJson(json);
-  }
-}
-
-function downloadJson(json: string) {
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `spirit-ore-state-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  flash('已下载存档 JSON');
-}
-
-function handleImport() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json,.json';
-  input.onchange = () => {
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const res = game.importState(String(reader.result));
-      flash(res.message);
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
-
 function handleReset() {
   if (confirm('确认重置为默认样例数据吗？')) {
     game.resetToDefault();

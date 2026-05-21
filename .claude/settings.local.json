@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /d/codeTwo/buildCode/)",
+      "Read(//d/codeTwo/**)",
+      "Read(//d/e/codeTwo/**)",
+      "Bash(npm run *)"
+    ]
+  }
+}

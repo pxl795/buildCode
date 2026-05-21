@@ -23,8 +23,8 @@ export function cloneState(state: GameState): GameState {
 }
 
 /** 给单个动作打分（基于当前 state） */
-export function scoreAction(action: Action, state: GameState): Action {
-  const production = calcTotalProduction(state);
+export function scoreAction(action: Action, state: GameState, cachedProduction?: number): Action {
+  const production = cachedProduction ?? calcTotalProduction(state);
   const cost = action.cost;
   const delta = action.deltaProduction;
 
@@ -61,7 +61,8 @@ export function scoreAction(action: Action, state: GameState): Action {
 
 /** 对所有动作打分并按贪心规则排序 */
 export function scoreAndSortActions(state: GameState): Action[] {
-  const scored = listGreedyActions(state).map(a => scoreAction(a, state));
+  const production = calcTotalProduction(state);
+  const scored = listGreedyActions(state).map(a => scoreAction(a, state, production));
   scored.sort((a, b) => {
     if (Math.abs(a.scoreSeconds - b.scoreSeconds) > EPS) {
       return a.scoreSeconds - b.scoreSeconds;
@@ -279,7 +280,7 @@ export function simulateHardUnlock(
       };
     }
 
-    const scored = scoreAction(buyAction, state);
+    const scored = scoreAction(buyAction, state, production);
     const result = performAction(state, scored);
     state = result.state;
     totalSeconds += result.step.waitSeconds;
