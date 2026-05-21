@@ -100,6 +100,8 @@ function flash(msg: string) {
 
     <GreedyTimeline
       :plan="game.greedyPlan.value"
+      :greedy-3-day="game.greedy3Day.value"
+      :beam-3-day="game.beam3Day.value"
       :max-steps="game.maxSteps.value"
       @change-max-steps="game.setMaxSteps"
       @apply="handleApplyBest"

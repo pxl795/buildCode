@@ -10,7 +10,8 @@ import {
   recalculateUnlocks,
   scoreAndSortActions,
   simulateGreedyPlan,
-  simulateHardUnlock
+  simulateHardUnlock,
+  simulateBeamPlan
 } from '../core';
 import type { Action, Building, GameState } from '../core/types';
 
@@ -100,6 +101,24 @@ export function useGameState() {
       horizonSeconds: 1e15,
       maxSteps: maxSteps.value
     })
+  );
+
+  // Beam Search 路线模拟（beamWidth=3），用于与贪心对比
+  const beamPlan = computed(() =>
+    simulateBeamPlan(gameState, {
+      horizonSeconds: 1e15,
+      maxSteps: maxSteps.value,
+      beamWidth: 3
+    })
+  );
+
+  // ===== 3 天对比专用：两种算法在相同时间窗口内的表现 =====
+  const THREE_DAYS = 3 * 86400;
+  const greedy3Day = computed(() =>
+    simulateGreedyPlan(gameState, { horizonSeconds: THREE_DAYS, maxSteps: 200 })
+  );
+  const beam3Day = computed(() =>
+    simulateBeamPlan(gameState, { horizonSeconds: THREE_DAYS, maxSteps: 200, beamWidth: 3 })
   );
 
   const hardUnlock = computed(() => simulateHardUnlock(gameState, gameState.targetBuildingId));
@@ -261,6 +280,9 @@ export function useGameState() {
     sortedActions,
     bestAction,
     greedyPlan,
+    beamPlan,
+    greedy3Day,
+    beam3Day,
     hardUnlock,
     // 方法
     canUndo,
