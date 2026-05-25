@@ -158,7 +158,7 @@ function flash(msg: string) {
     </template>
 
     <footer class="app-footer">
-      <span>贪心算法 · 前沿解锁折扣 0.5 · 不代表全局最优</span>
+      <span>贪心算法 · 前沿解锁折扣 0.5 · 升级动作折扣 0.7 · 高影响折扣 0.85 · 升级冲刺复合打分 · 不代表全局最优</span>
     </footer>
   </div>
 </template>

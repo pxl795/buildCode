@@ -2,7 +2,8 @@ import {
   MAX_BUILDING_COUNT,
   MAX_BUILDING_LEVEL,
   MAX_SERVANT_HIRE_BATCH,
-  NEXT_BUILDING_UNLOCK_COUNT
+  NEXT_BUILDING_UNLOCK_COUNT,
+  UPGRADE_THRESHOLD_PER_LEVEL
 } from './constants';
 import {
   calcBuyCost,
@@ -36,12 +37,16 @@ function actionLabel(type: ActionType, name: string, amount?: number): string {
 function actionReason(
   type: ActionType,
   building: Building | null,
-  isFrontierBuy: boolean
+  isFrontierBuy: boolean,
+  isUpgradeRush = false
 ): string {
   switch (type) {
     case 'buy':
       if (isFrontierBuy && building && building.count < NEXT_BUILDING_UNLOCK_COUNT) {
         return '推进前沿数量，帮助解锁下一类';
+      }
+      if (isUpgradeRush) {
+        return '接近升级门槛，冲刺升级';
       }
       return '提升当前秒产';
     case 'upgrade':
@@ -72,6 +77,9 @@ export function listGreedyActions(state: GameState): Action[] {
         const delta = calcBuyDeltaProduction(b, state);
         if (cost > 0 && delta > 0) {
           const isFrontier = b.id === frontierId;
+          const threshold = b.level * UPGRADE_THRESHOLD_PER_LEVEL;
+          const isUpgradeRush =
+            b.level < MAX_BUILDING_LEVEL && b.count < threshold && threshold - b.count <= 6;
           actions.push({
             type: 'buy',
             buildingId: b.id,
@@ -82,7 +90,7 @@ export function listGreedyActions(state: GameState): Action[] {
             paybackSeconds: 0,
             scoreSeconds: 0,
             rawScoreSeconds: 0,
-            reason: actionReason('buy', b, isFrontier),
+            reason: actionReason('buy', b, isFrontier, isUpgradeRush),
             label: actionLabel('buy', b.name)
           });
         }

@@ -2,6 +2,8 @@
 export const MAX_BUILDING_COUNT = 50;
 export const MAX_BUILDING_LEVEL = 6;
 export const NEXT_BUILDING_UNLOCK_COUNT = 5;
+/** 升级门槛系数：level 升 (level+1) 需要 level × UPGRADE_THRESHOLD_PER_LEVEL 栋 */
+export const UPGRADE_THRESHOLD_PER_LEVEL = 10;
 export const GROWTH_FACTOR = 1.25;
 export const UPGRADE_MULTIPLIER = 1.4;
 export const TOTAL_BUILDING_TYPES = 16;

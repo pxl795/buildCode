@@ -16,11 +16,12 @@ export function recalculateUnlocks(state: GameState): GameState {
   return state;
 }
 
-/** 当前已解锁的最高建筑 id（前沿） */
+/** 当前已解锁的最高建筑 id（前沿）。遇到第一个未解锁就停下，避免被人为破坏的不连续状态误导。 */
 export function getHighestUnlockedId(state: GameState): number {
   let id = 0;
   for (let i = 0; i < state.buildings.length; i++) {
-    if (state.buildings[i].unlocked) id = i;
+    if (!state.buildings[i].unlocked) break;
+    id = i;
   }
   return id;
 }

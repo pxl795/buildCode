@@ -1,9 +1,11 @@
 import {
   GROWTH_FACTOR,
+  MAX_BUILDING_LEVEL,
   MONTHLY_CARD_BONUS_RATE,
   SERVANT_PRICE_GROWTH_FACTOR,
   SERVANT_SKILL_BONUS_PER_LEVEL,
-  UPGRADE_MULTIPLIER
+  UPGRADE_MULTIPLIER,
+  UPGRADE_THRESHOLD_PER_LEVEL
 } from './constants';
 import type { Building, GameState } from './types';
 
@@ -66,12 +68,15 @@ export function calcBuyDeltaProduction(building: Building, state: GameState): nu
 // ===== 升级建筑 =====
 
 export function canUpgrade(building: Building): boolean {
-  return building.level < 6 && building.count >= building.level * 10;
+  return (
+    building.level < MAX_BUILDING_LEVEL &&
+    building.count >= building.level * UPGRADE_THRESHOLD_PER_LEVEL
+  );
 }
 
 export function calcUpgradeCost(building: Building): number {
   if (!canUpgrade(building)) return 0;
-  const exp = building.count - building.level * 10 + 1;
+  const exp = building.count - building.level * UPGRADE_THRESHOLD_PER_LEVEL + 1;
   return Math.ceil((UPGRADE_MULTIPLIER * building.nextBuyCost) / Math.pow(GROWTH_FACTOR, exp));
 }
 
